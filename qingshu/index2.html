@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>情书页面</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      overflow: hidden;
+      font-family: "思源宋体","宋体",serif;
+      /* background: url('backgroud.png') no-repeat center center fixed; */
+      background-size: cover; /* 其他选项: contain(完整显示), 100% 100%(拉伸填满) */
+    }
+
+    /* 气泡样式 */
+    .bubble {
+      position: absolute;
+      border-radius: 50%;
+      background-color: transparent;
+      border: 2px solid rgba(255,255,255,0.3);
+      animation: floatUp 20s infinite;
+    }
+    @keyframes floatUp {
+      0%   { transform: translateY(100vh) scale(0.5); opacity: 0; }
+      50%  { opacity: 1; }
+      100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+    }
+    .bubble-container {
+      position: absolute; top: 0; left: 0;
+      width: 100%; height: 100%;
+      overflow: hidden; pointer-events: none;
+    }
+
+    /* 文字框 */
+    .text-box {
+      position: absolute; 
+      top: 50%; 
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 520px; 
+      max-height: 60vh;
+      padding: 40px 30px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.75);
+      border-radius: 20px;
+      box-shadow: 0 0 25px rgba(0,0,0,0.25);
+      backdrop-filter: blur(3px);
+      z-index: 10;
+    }
+    .text-box h2 {
+      margin: 0 0 20px;
+      text-align: center;
+      color: #822b82;
+      font-family: "华文行楷", cursive;
+      font-size: 28px;
+      letter-spacing: 2px;
+      text-shadow: 1px 1px 2px #fff;
+    }
+    #typingText {
+      font-size: 22px;
+      color: #444;
+      white-space: pre-wrap;
+      line-height: 2;
+      letter-spacing: 1px;
+      text-align: justify;
+      text-shadow: 0.5px 0.5px 0.5px rgba(0,0,0,0.05);
+    }
+    .text-box .signature{
+      margin-top: 30px;
+      text-align: right;
+      color: #a03ca0;
+      font-family: "楷体", Georgia, serif;
+      font-size: 18px;
+      letter-spacing: 1px;
+    }
+
+    /* 剪影图片 - 修改后的样式 */
+    .silhouette{
+      position: absolute; 
+      bottom: 3vh; /* 距离底部5%的视窗高度 */
+      left: 50%;
+      transform: translateX(-50%); /* 只水平居中 */
+      max-width: 280px;
+      width: 50vw; /* 使用视窗宽度单位，自动适应屏幕 */
+      min-width: 180px; /* 设置最小宽度 */
+      height: auto; /* 保持宽高比 */
+      z-index: 5;
+    }
+
+    /* 响应式设计 - 针对不同屏幕尺寸调整 */
+    @media screen and (max-width: 768px) {
+      .silhouette {
+        width: 30vw;
+        min-width: 140px;
+        bottom: 3vh;
+      }
+      .text-box {
+        width: 90%;
+        max-height: 55vh;
+        padding: 18px 12px;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      .silhouette {
+        width: 35vw;
+        min-width: 120px;
+        bottom: 2vh;
+      }
+      .text-box {
+        width: 95%;
+        max-height: 50%;
+        padding: 8px 6px;
+      }
+    }
+
+    /* 全屏状态优化 */
+    @media screen and (min-width: 1200px) {
+      .silhouette {
+        width: 18vw;
+        max-width: 250px;
+        bottom: 8vh;
+      }
+      .text-box {
+        width: 480px;
+        max-height: 65vh;
+      }
+    }
+
+    /* 超宽屏优化 */
+    @media screen and (min-width: 1600px) {
+      .silhouette {
+        width: 15vw;
+        max-width: 280px;
+        bottom: 10vh;
+      }
+      .text-box {
+        width: 500px;
+        max-height: 70vh;
+      }
+    }
+
+    /* 背景音乐控制按钮（左下角小圆点） */
+    .mPower{
+      position: fixed; bottom: 20px; left: 20px;
+      z-index: 9999;
+    }
+    .mPower span{
+      display: inline-block;
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: rgba(255,107,107,0.8);
+      cursor: pointer; user-select: none;
+      box-shadow: 0 2px 6px rgba(255,107,107,.3);
+      transition: all .3s ease;
+    }
+    .mPower span:hover{ transform: scale(1.15); }
+    .mPower span:active{ transform: scale(.9); }
+
+    /* 右上角 ♥ 按钮 */
+    .top-right-btn{
+      position: fixed; top: 20px; right: 20px;
+      width: 40px; height: 40px;
+      background: rgba(255,107,107,0.8);
+      color:#fff; border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:18px; cursor:pointer; user-select:none;
+      box-shadow:0 2px 10px rgba(255,107,107,.3);
+      transition:all .3s ease; z-index:9999;
+    }
+    .top-right-btn:hover   { background: rgba(255,107,107,1); transform: scale(1.1); }
+    .top-right-btn:active { transform: scale(.95); }
+  </style>
+</head>
+<body>
+
+  <!-- 樱花雨配置 -->
+  <script>
+    window.sakuraConfig = window.sakuraConfig || {
+      sakura: 120,        // 花瓣数量
+      xSpeed: 1,       // 水平速度
+      ySpeed: 1,       // 垂直速度
+      rSpeed: 0.05,     // 旋转速度
+      direction: "TopRight", // 开始方向
+      zIndex: -1         // Z-Index层级
+    };
+  </script>
+
+  <!-- 背景音乐 & 打字机音效 -->
+  <audio id="bgmMusic"  src="bgm.mp3"      autoplay loop preload="auto"></audio>
+  <audio id="typeSound" src="typeSound.mp3" preload="auto"></audio>
+
+  <!-- 播放 / 暂停按钮 -->
+  <div class="mPower">
+    <span id="musicOn"  title="点击暂停"></span>
+    <span id="musicOff" title="点击播放" style="display:none;"></span>
+  </div>
+
+  <!-- 爱心触发 ESC 按钮 -->
+  <div class="top-right-btn">❤</div>
+
+  <!-- 气泡容器 -->
+  <div class="bubble-container" id="bubbles"></div>
+
+  <!-- 文字内容 -->
+  <div class="text-box">
+    <h2>小情书</h2>
+    <div id="typingText"></div>
+    <div class="signature">—— 小旭同学</div>
+  </div>
+
+  <!-- 剪影图片 -->
+  <img class="silhouette" src="backgroud.png" alt="剪影">
+
+  <!-- jQuery（本地或 CDN 均可） -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+  <!-- 背景音乐 / 按钮逻辑 & ESC 触发 -->
+  <script>
+    $(function () {
+      /* 背景音乐播放控制 */
+      const bgm = document.getElementById('bgmMusic');
+      $('#musicOn').on('click', () => { bgm.pause(); $('#musicOn').hide(); $('#musicOff').show(); });
+      $('#musicOff').on('click', () => { bgm.play();  $('#musicOff').hide(); $('#musicOn').show(); });
+
+      /* 解决自动播放限制 — 首次点击页面后同时打开 bgm 和打字机音效权限 */
+      window.addEventListener('click', () => {
+        bgm.play().catch(()=>{});
+        $('#typeSound')[0].play().then(a=>$('#typeSound')[0].pause());
+      }, {once:true});
+
+      /* 右上角爱心：触发 ESC 键自定义事件 */
+      $('.top-right-btn').on('click', () => {
+        const escEvent = new KeyboardEvent('keyup', {
+          key: 'Escape', keyCode: 27, which: 27, bubbles: true, cancelable: true
+        });
+        window.dispatchEvent(escEvent);
+        $(window).trigger($.Event('keyup',{keyCode:27,which:27,target:document.body}));
+      });
+    });
+  </script>
+
+  <!-- 樱花雨效果库 -->
+  <script>
+    function loadAndExecuteScript(url) {
+      fetch(url)
+        .then((response) => response.text())
+        .then((scriptContent) => {
+          const wrappedScript = `
+            (function() {
+              try {
+                ${scriptContent}
+              } catch (e) {
+                if (e instanceof SyntaxError && e.message.includes("Identifier 'isMobile' has already been declared")) {
+                  console.warn("Ignored redeclaration of 'isMobile'");
+                } else {
+                  throw e;
+                }
+              }
+            })();
+          `;
+          const script = document.createElement('script');
+          script.textContent = wrappedScript;
+          document.body.appendChild(script);
+        })
+        .catch((error) => console.error('Error loading the sakura script:', error));
+    }
+
+    function initializeSakura() {
+      loadAndExecuteScript('https://cdn.jsdelivr.net/gh/minz71/sakura-rain/sakura-rain.js');
+    }
+  </script>
+
+  <!-- 气泡 + 打字机主脚本 -->
+  <script>
+    /* ---------- 气泡生成 ---------- */
+    const colors = ['#ffb6c1','#dda0dd','#87cefa','#90ee90','#f0e68c'];
+    const bubbles = document.getElementById('bubbles');
+    for (let i = 0; i < 80; i++) {
+      const bubble = document.createElement('div');
+      const size  = Math.random() * 30 + 10;
+      bubble.className = 'bubble';
+      bubble.style.width = bubble.style.height = size + 'px';
+      bubble.style.left = Math.random() * 100 + '%';
+      bubble.style.animationDuration = (Math.random() * 10 + 10) + 's';
+      bubble.style.borderColor = colors[Math.floor(Math.random() * colors.length)];
+      bubbles.appendChild(bubble);
+    }
+
+    /* ---------- 打字机效果 ---------- */
+    const rawText = `在遇见你之前，我以为“喜欢”只是风掠过湖面时泛起的一圈涟漪，轻轻荡漾，终将归于平静。可遇见你之后，我才明白，原来有些心跳像潮汐，昼夜不息——一遍遍将思念推向岸边，悄悄用与你有关的温度，填满了我的整个世界。
+
+我喜欢看到你的笑容。你笑起来的样子，像初夏的阳光洒落在湖面，轻盈又温暖，泛着柔光。看见你开心，我也会觉得，哪怕所有的等待与沉默，都是值得的。
+
+愿我所有的温柔，都恰好吻合你的心事；愿我所有的耐心，都只用来等你、陪你——看花开花谢，看海潮往复，看这人间烟火缓缓流淌，与你共度每一个平常日子里的静好时光。
+
+我想喜欢的那个人，应该是眼中有光、心中有暖的人。她不会太张扬，却在意他人的感受；她不总说爱，却用行动守护彼此的日常。就像你不经意间流露出的模样，让人忍不住靠近，又想用尽全部的温柔珍藏。
+
+也许你从未察觉，可在那些你未留意的时刻里，我早已悄悄对自己说过无数次——我好像，就是喜欢这样的你。
+
+愿这封信穿越人海，轻轻抵达你柔软的心底。愿我所有的坚定与温柔，终有一日能靠岸于你身边，与你并肩，走过漫长而值得的人间岁月。`;
+
+    const formattedText = rawText.replace(/\n\n/g,'<br><br>').replace(/\n/g,'<br>');
+    const target = document.getElementById('typingText');
+    const typeSound = document.getElementById('typeSound');
+    let i = 0, typingSpeed = 200;
+
+    function typeWriter(){
+      if(i < formattedText.length){
+        const char = formattedText.charAt(i);
+        if(char === '<'){ // 处理 <br>
+          const end = formattedText.indexOf('>', i);
+          target.innerHTML += formattedText.substring(i, end+1);
+          i = end+1;
+        }else{
+          target.innerHTML += char;
+          i++;
+          // 打字机音效
+          typeSound.currentTime = 0;
+          typeSound.play();
+        }
+
+        // 👉 自动滚动到文字框底部
+        target.parentElement.scrollTop = target.parentElement.scrollHeight;
+
+        setTimeout(typeWriter, typingSpeed);
+      }
+    }
+
+
+    /* ---------- 页面初始化 ---------- */
+    window.onload = () => { 
+      setTimeout(typeWriter, 5000);
+      // 初始化樱花雨效果
+      setTimeout(initializeSakura, 1000);
+    };
+  </script>
+</body>
+</html>

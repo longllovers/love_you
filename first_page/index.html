@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>我们的小天地 💕</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no">
+  <style>
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    
+    body { 
+      font-family: 'Helvetica Neue', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif; 
+      color: #333; 
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+    
+    .hero { 
+      position: relative; 
+      width: 100%; 
+      height: 100vh; 
+      background: url('background.png') center center no-repeat; 
+      display: flex; 
+      align-items: center; 
+      justify-content: center; 
+      background-size: cover;
+      background-attachment: fixed;
+    }
+    
+    /* 手机端优化背景显示 */
+    @media (max-width: 768px) {
+      .hero {
+        background-attachment: scroll;
+        background-size: cover;
+        background-position: center center;
+        min-height: 100vh;
+      }
+    }
+    
+    .overlay { 
+      position: absolute; 
+      top: 0; 
+      left: 0; 
+      right: 0; 
+      bottom: 0; 
+      background: rgba(0,0,0,0.3);
+    }
+    
+    .content { 
+      position: relative; 
+      text-align: center; 
+      color: #fff; 
+      animation: fadeInUp 1.5s ease-out both; 
+      padding: 0 1rem;
+      z-index: 2;
+    }
+    
+    .content h1 { 
+      font-size: clamp(2rem, 8vw, 3.5rem);
+      margin-bottom: 1rem; 
+      font-weight: 300;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+      letter-spacing: 2px;
+    }
+    
+    .content p { 
+      font-size: clamp(1rem, 4vw, 1.3rem);
+      text-shadow: 1px 1px 2px rgba(0,0,0,0.5);
+      max-width: 90%;
+      margin: 0 auto;
+    }
+    
+    @keyframes fadeInUp { 
+      from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+      } 
+      to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      } 
+    }
+    
+    .section { 
+      padding: 3rem 1.5rem; 
+      background: linear-gradient(135deg, #fef7f5, #fff0f3);
+      text-align: center; 
+    }
+    
+    .section h2 { 
+      font-size: clamp(1.5rem, 6vw, 2.2rem);
+      margin-bottom: 1.5rem; 
+      color: #e91e63;
+      font-weight: 300;
+      position: relative;
+    }
+    
+    .section h2::after {
+      content: '';
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 2px;
+      background: linear-gradient(90deg, #ff6b9d, #e91e63);
+      border-radius: 1px;
+    }
+    
+    .section p { 
+      font-size: clamp(0.9rem, 4vw, 1.1rem);
+      max-width: 600px; 
+      margin: 0 auto 2rem; 
+      color: #666;
+      line-height: 1.8;
+    }
+    
+    /* 照片画廊 */
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 2rem;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    
+    .photo-placeholder {
+      aspect-ratio: 1;
+      background: linear-gradient(135deg, #ffb6c1, #ffc0cb);
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #e91e63;
+      font-size: 2rem;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(233, 30, 99, 0.2);
+    }
+    
+    .photo-placeholder:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+    }
+    
+    /* 时间线部分 */
+    .timeline-section {
+      padding: 3rem 1.5rem;
+      background: #fff;
+    }
+    
+    .timeline {
+      max-width: 600px;
+      margin: 0 auto;
+      position: relative;
+    }
+    
+    .timeline::before {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: linear-gradient(180deg, #ff6b9d, #e91e63);
+      transform: translateX(-50%);
+    }
+    
+    .timeline-item {
+      position: relative;
+      margin: 2rem 0;
+      animation: fadeInUp 1s ease-out both;
+    }
+    
+    .timeline-item:nth-child(odd) {
+      text-align: right;
+      padding-right: calc(50% + 2rem);
+    }
+    
+    .timeline-item:nth-child(even) {
+      text-align: left;
+      padding-left: calc(50% + 2rem);
+    }
+    
+    .timeline-content {
+      background: #fef7f5;
+      padding: 1.5rem;
+      border-radius: 15px;
+      box-shadow: 0 4px 15px rgba(233, 30, 99, 0.1);
+      position: relative;
+    }
+    
+    .timeline-content::before {
+      content: '';
+      position: absolute;
+      top: 20px;
+      width: 0;
+      height: 0;
+      border: 10px solid transparent;
+    }
+    
+    .timeline-item:nth-child(odd) .timeline-content::before {
+      right: -20px;
+      border-left-color: #fef7f5;
+    }
+    
+    .timeline-item:nth-child(even) .timeline-content::before {
+      left: -20px;
+      border-right-color: #fef7f5;
+    }
+    
+    .timeline-date {
+      color: #e91e63;
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    .timeline-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+    
+    .timeline-desc {
+      color: #666;
+      font-size: 0.9rem;
+    }
+    
+    .timeline-dot {
+      position: absolute;
+      left: 50%;
+      top: 20px;
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(135deg, #ff6b9d, #e91e63);
+      border-radius: 50%;
+      transform: translateX(-50%);
+      z-index: 2;
+      box-shadow: 0 0 0 4px #fff, 0 0 10px rgba(233, 30, 99, 0.3);
+    }
+    
+    /* 手机端时间线调整 */
+    @media (max-width: 768px) {
+      .timeline::before {
+        left: 20px;
+      }
+      
+      .timeline-item {
+        text-align: left !important;
+        padding-left: 3rem !important;
+        padding-right: 0 !important;
+      }
+      
+      .timeline-content::before {
+        left: -20px !important;
+        right: auto !important;
+        border-right-color: #fef7f5 !important;
+        border-left-color: transparent !important;
+      }
+      
+      .timeline-dot {
+        left: 20px;
+        transform: translateX(-50%);
+      }
+    }
+    
+    /* 底部 */
+    .footer {
+      background: linear-gradient(135deg, #e91e63, #ff6b9d);
+      color: white;
+      text-align: center;
+      padding: 2rem 1rem;
+    }
+    
+    .footer p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+    
+    /* 滚动动画 */
+    @keyframes slideInLeft {
+      from {
+        opacity: 0;
+        transform: translateX(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    @keyframes slideInRight {
+      from {
+        opacity: 0;
+        transform: translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+    
+    .timeline-item:nth-child(odd) {
+      animation: slideInRight 0.8s ease-out both;
+    }
+    
+    .timeline-item:nth-child(even) {
+      animation: slideInLeft 0.8s ease-out both;
+    }
+  </style>
+</head>
+<body>
+  <section class="hero">
+    <div class="overlay"></div>
+    <div class="content">
+      <h1>我们的故事</h1>
+      <p>从那天阳光下的相遇，到一起走过的每一次浪漫</p>
+    </div>
+  </section>
+
+
+
+  <script>
+    // 照片占位符点击效果
+    document.querySelectorAll('.photo-placeholder').forEach(placeholder => {
+      placeholder.addEventListener('click', function() {
+        this.style.transform = 'scale(0.95)';
+        setTimeout(() => {
+          this.style.transform = 'scale(1)';
+        }, 150);
+      });
+    });
+  </script>
+</body>
+</html>
